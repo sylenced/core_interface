@@ -1,8 +1,8 @@
-local E, L, V, P, G = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local E, L, V, P, G = unpack(select(2, ...)); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 
 --Cache global variables
 local select, tonumber, assert, type, unpack, pairs = select, tonumber, assert, type, unpack, pairs
-local tinsert, tremove = tinsert, tremove
+local tinsert, tremove, next = tinsert, tremove, next
 local atan2, modf, ceil, floor, abs, sqrt, mod = math.atan2, math.modf, math.ceil, math.floor, math.abs, math.sqrt, mod
 local format, sub, upper, split, utf8sub = string.format, string.sub, string.upper, string.split, string.utf8sub
 --WoW API / Variables
@@ -11,36 +11,59 @@ local UnitPosition = UnitPosition
 local GetPlayerFacing = GetPlayerFacing
 local BreakUpLargeNumbers = BreakUpLargeNumbers
 local GetScreenWidth, GetScreenHeight = GetScreenWidth, GetScreenHeight
+local C_Timer_After = C_Timer.After
 
 --Return short value of a number
+local shortValueDec
 function E:ShortValue(v)
+	shortValueDec = format("%%.%df", E.db.general.decimalLength or 1)
 	if E.db.general.numberPrefixStyle == "METRIC" then
 		if abs(v) >= 1e9 then
-			return format("%.1fG", v / 1e9)
+			return format(shortValueDec.."G", v / 1e9)
 		elseif abs(v) >= 1e6 then
-			return format("%.1fM", v / 1e6)
+			return format(shortValueDec.."M", v / 1e6)
 		elseif abs(v) >= 1e3 then
-			return format("%.1fk", v / 1e3)
+			return format(shortValueDec.."k", v / 1e3)
 		else
-			return format("%d", v)
+			return format("%s", v)
 		end
 	elseif E.db.general.numberPrefixStyle == "CHINESE" then
 		if abs(v) >= 1e8 then
-			return format("%.1fY", v / 1e8)
+			return format(shortValueDec.."Y", v / 1e8)
 		elseif abs(v) >= 1e4 then
-			return format("%.1fW", v / 1e4)
+			return format(shortValueDec.."W", v / 1e4)
 		else
-			return format("%d", v)
+			return format("%s", v)
+		end
+	elseif E.db.general.numberPrefixStyle == "KOREAN" then
+		if abs(v) >= 1e8 then
+			return format(shortValueDec.."억", v / 1e8)
+		elseif abs(v) >= 1e4 then
+			return format(shortValueDec.."만", v / 1e4)
+		elseif abs(v) >= 1e3 then
+			return format(shortValueDec.."천", v / 1e3)
+		else
+			return format("%s", v)
+		end
+	elseif E.db.general.numberPrefixStyle == "GERMAN" then
+		if abs(v) >= 1e9 then
+			return format(shortValueDec.."Mrd", v / 1e9)
+		elseif abs(v) >= 1e6 then
+			return format(shortValueDec.."Mio", v / 1e6)
+		elseif abs(v) >= 1e3 then
+			return format(shortValueDec.."Tsd", v / 1e3)
+		else
+			return format("%s", v)
 		end
 	else
 		if abs(v) >= 1e9 then
-			return format("%.1fB", v / 1e9)
+			return format(shortValueDec.."B", v / 1e9)
 		elseif abs(v) >= 1e6 then
-			return format("%.1fM", v / 1e6)
+			return format(shortValueDec.."M", v / 1e6)
 		elseif abs(v) >= 1e3 then
-			return format("%.1fK", v / 1e3)
+			return format(shortValueDec.."K", v / 1e3)
 		else
-			return format("%d", v)
+			return format("%s", v)
 		end
 	end
 end
@@ -177,6 +200,8 @@ function E:GetXYOffset(position, override)
 end
 
 local styles = {
+	-- keep percents in this table with `PERCENT` in the key, and `%.1f%%` in the value somewhere.
+	-- we use these two things to follow our setting for decimal length. they need to be EXACT.
 	['CURRENT'] = '%s',
 	['CURRENT_MAX'] = '%s - %s',
 	['CURRENT_PERCENT'] =  '%s - %.1f%%',
@@ -185,6 +210,7 @@ local styles = {
 	['DEFICIT'] = '-%s'
 }
 
+local gftDec, gftUseStyle, gftDeficit
 function E:GetFormattedText(style, min, max)
 	assert(styles[style], 'Invalid format style: '..style)
 	assert(min, 'You need to provide a current value. Usage: E:GetFormattedText(style, min, max)')
@@ -192,28 +218,26 @@ function E:GetFormattedText(style, min, max)
 
 	if max == 0 then max = 1 end
 
-	local useStyle = styles[style]
+	gftDec = (E.db.general.decimalLength or 1)
+	if (gftDec ~= 1) and style:find('PERCENT') then
+		gftUseStyle = styles[style]:gsub('%%%.1f%%%%', '%%.'..gftDec..'f%%%%')
+	else
+		gftUseStyle = styles[style]
+	end
 
 	if style == 'DEFICIT' then
-		local deficit = max - min
-		if deficit <= 0 then
-			return ''
-		else
-			return format(useStyle, E:ShortValue(deficit))
-		end
+		gftDeficit = max - min
+		return ((gftDeficit > 0) and format(gftUseStyle, E:ShortValue(gftDeficit))) or ''
 	elseif style == 'PERCENT' then
-		local s = format(useStyle, min / max * 100)
-		return s
+		return format(gftUseStyle, min / max * 100)
 	elseif style == 'CURRENT' or ((style == 'CURRENT_MAX' or style == 'CURRENT_MAX_PERCENT' or style == 'CURRENT_PERCENT') and min == max) then
 		return format(styles['CURRENT'],  E:ShortValue(min))
 	elseif style == 'CURRENT_MAX' then
-		return format(useStyle,  E:ShortValue(min), E:ShortValue(max))
+		return format(gftUseStyle,  E:ShortValue(min), E:ShortValue(max))
 	elseif style == 'CURRENT_PERCENT' then
-		local s = format(useStyle, E:ShortValue(min), min / max * 100)
-		return s
+		return format(gftUseStyle, E:ShortValue(min), min / max * 100)
 	elseif style == 'CURRENT_MAX_PERCENT' then
-		local s = format(useStyle, E:ShortValue(min), E:ShortValue(max), min / max * 100)
-		return s
+		return format(gftUseStyle, E:ShortValue(min), E:ShortValue(max), min / max * 100)
 	end
 end
 
@@ -264,31 +288,37 @@ end
 local waitTable = {}
 local waitFrame
 function E:Delay(delay, func, ...)
-	if(type(delay)~="number" or type(func)~="function") then
+	if (type(delay) ~= "number") or (type(func) ~= "function") then
 		return false
 	end
-	if(waitFrame == nil) then
-		waitFrame = CreateFrame("Frame","WaitFrame", E.UIParent)
-		waitFrame:SetScript("onUpdate",function (_,elapse)
-			local count = #waitTable
-			local i = 1
-			while(i<=count) do
-				local waitRecord = tremove(waitTable,i)
-				local d = tremove(waitRecord,1)
-				local f = tremove(waitRecord,1)
-				local p = tremove(waitRecord,1)
-				if(d>elapse) then
-				  tinsert(waitTable,i,{d-elapse,f,p})
-				  i = i + 1
-				else
-				  count = count - 1
-				  f(unpack(p))
+	local extend = {...}
+	if not next(extend) then
+		C_Timer_After(delay, func)
+		return true
+	else
+		if waitFrame == nil then
+			waitFrame = CreateFrame("Frame","WaitFrame", E.UIParent)
+			waitFrame:SetScript("onUpdate",function (_,elapse)
+				local waitRecord, waitDelay, waitFunc, waitParams
+				local i, count = 1, #waitTable
+				while i <= count do
+					waitRecord = tremove(waitTable,i)
+					waitDelay = tremove(waitRecord,1)
+					waitFunc = tremove(waitRecord,1)
+					waitParams = tremove(waitRecord,1)
+					if waitDelay > elapse then
+						tinsert(waitTable,i,{waitDelay-elapse,waitFunc,waitParams})
+						i = i + 1
+					else
+						count = count - 1
+						waitFunc(unpack(waitParams))
+					end
 				end
-			end
-		end)
+			end)
+		end
+		tinsert(waitTable,{delay,func,extend})
+		return true
 	end
-	tinsert(waitTable,{delay,func,{...}})
-	return true
 end
 
 function E:StringTitle(str)
@@ -364,9 +394,9 @@ local ICON_COPPER = "|TInterface\\MoneyFrame\\UI-CopperIcon:12:12|t"
 local ICON_SILVER = "|TInterface\\MoneyFrame\\UI-SilverIcon:12:12|t"
 local ICON_GOLD = "|TInterface\\MoneyFrame\\UI-GoldIcon:12:12|t"
 function E:FormatMoney(amount, style, textonly)
-	local coppername = textonly and L.copperabbrev or ICON_COPPER
-	local silvername = textonly and L.silverabbrev or ICON_SILVER
-	local goldname = textonly and L.goldabbrev or ICON_GOLD
+	local coppername = textonly and L["copperabbrev"] or ICON_COPPER
+	local silvername = textonly and L["silverabbrev"] or ICON_SILVER
+	local goldname = textonly and L["goldabbrev"] or ICON_GOLD
 
 	local value = abs(amount)
 	local gold = floor(value / 10000)

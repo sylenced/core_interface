@@ -1,4 +1,4 @@
-local E, L, V, P, G = unpack(select(2, ...)); --Inport: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
+local E, L, V, P, G = unpack(select(2, ...)); --Import: Engine, Locales, PrivateDB, ProfileDB, GlobalDB
 local LSM = LibStub("LibSharedMedia-3.0")
 
 --Cache global variables
@@ -8,7 +8,7 @@ local unpack, type, select, getmetatable, assert = unpack, type, select, getmeta
 --WoW API / Variables
 local CreateFrame = CreateFrame
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
-local CUSTOM_CLASS_COLORS = CUSTOM_CLASS_COLORS
+-- GLOBALS: CUSTOM_CLASS_COLORS
 
 --Preload shit..
 E.mult = 1;
@@ -57,7 +57,7 @@ local function Width(frame, width)
 		end
 		assert(width,'Width not set properly.')
 	end]]
-	
+
 	frame:SetWidth(E:Scale(width))
 end
 
@@ -84,7 +84,7 @@ local function SetOutside(obj, anchor, xOffset, yOffset, anchor2)
 	xOffset = xOffset or E.Border
 	yOffset = yOffset or E.Border
 	anchor = anchor or obj:GetParent()
-	
+
 	assert(anchor)
 	if obj:GetPoint() then
 		obj:ClearAllPoints()
@@ -98,7 +98,7 @@ local function SetInside(obj, anchor, xOffset, yOffset, anchor2)
 	xOffset = xOffset or E.Border
 	yOffset = yOffset or E.Border
 	anchor = anchor or obj:GetParent()
-	
+
 	assert(anchor)
 	if obj:GetPoint() then
 		obj:ClearAllPoints()
@@ -122,11 +122,11 @@ local function SetTemplate(f, t, glossTex, ignoreUpdates, forcePixelMode, isUnit
 	if(ignoreUpdates) then
 	   f.ignoreUpdates = ignoreUpdates
 	end
-	
+
 	if(forcePixelMode) then
 		f.forcePixelMode = forcePixelMode
 	end
-	
+
 	if (isUnitFrameElement) then
 		f.isUnitFrameElement = isUnitFrameElement
 	end
@@ -172,7 +172,7 @@ local function SetTemplate(f, t, glossTex, ignoreUpdates, forcePixelMode, isUnit
 				f.iborder = border
 
 				if f.oborder then return end
-				local border = CreateFrame("Frame", nil, f)
+				border = CreateFrame("Frame", nil, f)
 				border:SetOutside(f, E.mult, E.mult)
 				border:SetFrameLevel(f:GetFrameLevel() + 1)
 				border:SetBackdrop({
@@ -218,7 +218,7 @@ end
 
 local function CreateBackdrop(f, t, tex, ignoreUpdates, forcePixelMode, isUnitFrameElement)
 	if not t then t = "Default" end
-	
+
 	local b = CreateFrame("Frame", nil, f)
 	if(f.forcePixelMode or forcePixelMode) then
 		b:SetOutside(nil, E.mult, E.mult)
@@ -343,6 +343,35 @@ local function StyleButton(button, noHover, noPushed, noChecked)
 	end
 end
 
+local function CreateCloseButton(frame, size, offset, texture, backdrop)
+	size = (size or 16)
+	offset = (offset or -6)
+	texture = (texture or "Interface\\AddOns\\ElvUI\\media\\textures\\close.tga")
+
+	local CloseButton = CreateFrame("Button", nil, frame)
+	CloseButton:Size(size)
+	CloseButton:Point("TOPRIGHT", offset, offset)
+	if backdrop then
+		CloseButton:CreateBackdrop("Default", true)
+	end
+
+	CloseButton.Texture = CloseButton:CreateTexture(nil, "OVERLAY")
+	CloseButton.Texture:SetAllPoints()
+	CloseButton.Texture:SetTexture(texture)
+
+	CloseButton:SetScript("OnClick", function(self)
+		self:GetParent():Hide()
+	end)
+	CloseButton:SetScript("OnEnter", function(self)
+		self.Texture:SetVertexColor(unpack(E["media"].rgbvaluecolor))
+	end)
+	CloseButton:SetScript("OnLeave", function(self)
+		self.Texture:SetVertexColor(1, 1, 1)
+	end)
+
+	frame.CloseButton = CloseButton
+end
+
 local function addapi(object)
 	local mt = getmetatable(object).__index
 	if not object.Size then mt.Size = Size end
@@ -358,6 +387,7 @@ local function addapi(object)
 	if not object.FontTemplate then mt.FontTemplate = FontTemplate end
 	if not object.StripTextures then mt.StripTextures = StripTextures end
 	if not object.StyleButton then mt.StyleButton = StyleButton end
+	if not object.CreateCloseButton then mt.CreateCloseButton = CreateCloseButton end
 end
 
 local handled = {["Frame"] = true}

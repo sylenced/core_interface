@@ -7,7 +7,7 @@ if not L then return end
 L["INCOMPATIBLE_ADDON"] = "插件 %s 與 ElvUI 的 %s 模組不相容。請停用不相容的插件，或停用相關的模組."
 
 --*_MSG locales
-L["LOGIN_MSG"] = "歡迎使用%sElvUI |r %s%s|r 版, 請輸入/ec 進入設定介面. 如需技術支援請至http://www.tukui.org"
+L["LOGIN_MSG"] = "歡迎使用%sElvUI |r %s%s|r 版, 請輸入/ec 進入設定介面. 如需技術支援請至https://www.tukui.org"
 
 --ActionBars
 L["Binding"] = "綁定"
@@ -38,6 +38,7 @@ L["Purchase Bags"] = "購買背包"
 L["Purchase"] = "購買銀行欄位"
 L["Reagent Bank"] = "材料銀行"
 L["Reset Position"] = "重設位置"
+L["Right Click the bag icon to assign a type of item to this bag."] = true
 L["Show/Hide Reagents"] = "顯示/隱藏材料"
 L["Sort Tab"] = "選項排列" --Not used, yet?
 L["Temporary Move"] = "移動背包"
@@ -51,6 +52,8 @@ L["G"] = "公會"
 L["I"] = "副本"
 L["IL"] = "副本隊長"
 L["Invalid Target"] = "無效的目標"
+L["is looking for members"] = true
+L["joined a group"] = true
 L["O"] = "幹部"
 L["P"] = "隊伍"
 L["PL"] = "隊長"
@@ -65,12 +68,11 @@ L["yells"] = "大喊"
 L["Current Level:"] = "目前等級"
 L["Honor Remaining:"] = "剩餘:"
 L["Honor XP:"] = "榮譽:"
-L["In Bags:"] = true;
+L["In Bags:"] = "背包內:"
 
 --DataTexts
 L["(Hold Shift) Memory Usage"] = "(按住Shift) 記憶體使用量"
 L["AP"] = "攻擊強度"
-L["App"] = true;
 L["Arena"] = "競技場"
 L["AVD: "] = "免傷: "
 L["Avoidance Breakdown"] = "免傷統計"
@@ -79,6 +81,8 @@ L["Building(s) Report:"] = "建築報告"
 L["Character: "] = "角色: "
 L["Chest"] = "胸部"
 L["Combat"] = "戰鬥"
+L["Combat/Arena Time"] = "戰鬥時間"
+L["Coords"] = "坐標"
 L["copperabbrev"] = "|cffeda55f銅|r" --Also used in Bags
 L["Deficit:"] = "赤字:"
 L["Download"] = "下載"
@@ -86,8 +90,8 @@ L["DPS"] = "傷害輸出"
 L["Earned:"] = "賺取:"
 L["Feet"] = "腳部"
 L["Friends List"] = "好友列表"
-L["Friends"] = "好友" --Also in Skins
-L["Gold:"] = "金錢:"
+L["Garrison"] = "要塞"
+L["Gold"] = "金錢"
 L["goldabbrev"] = "|cffffd700金|r" --Also used in Bags
 L["Hands"] = "手部"
 L["Head"] = "頭部"
@@ -100,21 +104,27 @@ L["lvl"] = "等級"
 L["Main Hand"] = "主手"
 L["Mission(s) Report:"] = "任務報告"
 L["Mitigation By Level: "] = "等級減傷: "
+L["Mobile"] = true
+L["Mov. Speed:"] = STAT_MOVEMENT_SPEED
 L["Naval Mission(s) Report:"] = "海軍任務報告"
 L["No Guild"] = "沒有公會"
 L["Offhand"] = "副手"
 L["Profit:"] = "利潤: "
+L["Reset Counters: Hold Shift + Left Click"] = true
 L["Reset Data: Hold Shift + Right Click"] = "重置數據: 按住 Shift + 右鍵點擊"
-L["Saved Raid(s)"] = "已有進度的副本"
 L["Saved Dungeon(s)"] = "已有進度地城"
+L["Saved Raid(s)"] = "已有進度的副本"
 L["Server: "] = "伺服器: "
 L["Session:"] = "本次登入:"
 L["Shoulder"] = "肩部"
 L["silverabbrev"] = "|cffc7c7cf銀|r" --Also used in Bags
 L["SP"] = "法術能量"
 L["Spec"] = "專精"
+L["Spell/Heal Power"] = "法術/治療強度"
 L["Spent:"] = "花費:"
 L["Stats For:"] = "統計:"
+L["System"] = "系統信息"
+L["Talent/Loot Specialization"] = "天賦/拾取專精"
 L["Total CPU:"] = "CPU佔用"
 L["Total Memory:"] = "總記憶體:"
 L["Total: "] = "合計: "
@@ -127,7 +137,6 @@ L["|cffFFFFFFShift + Left Click:|r Show Talent Specialization UI"] = "|cffFFFFFF
 
 --DebugTools
 L["%s: %s tried to call the protected function '%s'."] = "%s: %s 嘗試調用保護函數'%s'."
-L["No locals to dump"] = "沒有本地檔案"
 
 --Distributor
 L["%s is attempting to share his filters with you. Would you like to accept the request?"] = "%s 試圖與你分享過濾器設定. 你是否接受?"
@@ -211,7 +220,7 @@ L["Bars"] = "條" --Also used in UnitFrames
 L["Calendar"] = "日曆"
 L["Can't Roll"] = "無法需求此裝備"
 L["Disband Group"] = "解散隊伍"
-L["Empty Slot"] = true;
+L["Empty Slot"] = true
 L["Enable"] = "啟用" --Doesn't fit a section since it's used a lot of places
 L["Experience"] = "經驗/聲望條"
 L["Fishy Loot"] = "貪婪"
@@ -221,6 +230,7 @@ L["Remaining:"] = "剩餘:"
 L["Rested:"] = "休息:"
 L["Toggle Chat Frame"] = "開關對話框架" --layout\layout.lua
 L["Toggle Configuration"] = "開啟/關閉設定" --layout\layout.lua
+L["AP:"] = true -- Artifact Power
 L["XP:"] = "經驗:"
 L["You don't have permission to mark targets."] = "你沒有標記目標的權限."
 
@@ -239,7 +249,7 @@ L["Bar "] = "快捷列 " --Also in ActionBars
 L["BNet Frame"] = "戰網提示資訊"
 L["Boss Button"] = "特殊技能鍵"
 L["Boss Frames"] = "首領框架" --Also used in UnitFrames
-L["Class Totems"] = true;
+L["Class Totems"] = true
 L["Classbar"] = "職業特有條"
 L["Experience Bar"] = "經驗條"
 L["Focus Castbar"] = "焦點目標施法條"
@@ -248,7 +258,7 @@ L["FocusTarget Frame"] = "焦點目標的目標框架" --Also used in UnitFrames
 L["GM Ticket Frame"] = "GM 對話框"
 L["Honor Bar"] = "榮譽條"
 L["Left Chat"] = "左側對話框"
-L["Level Up Display / Boss Banner"] = true;
+L["Level Up Display / Boss Banner"] = true
 L["Loot / Alert Frames"] = "拾取 / 提醒框架"
 L["Loot Frame"] = "拾取框架"
 L["Loss Control Icon"] = "失去控制圖示"
@@ -293,10 +303,10 @@ Options:
 
 --Plugin Installer
 L["ElvUI Plugin Installation"] = "ElvUI 插件安裝"
-L["In Progress"] = "進行中";
-L["List of installations in queue:"] = "即將安裝的列表";
-L["Pending"] = "等待中";
-L["Steps"] = "步驟";
+L["In Progress"] = "進行中"
+L["List of installations in queue:"] = "即將安裝的列表"
+L["Pending"] = "等待中"
+L["Steps"] = "步驟"
 
 --Prints
 L[" |cff00ff00bound to |r"] = " |cff00ff00綁定到 |r"
@@ -320,6 +330,8 @@ L["|cFFE30000Lua error recieved. You can view the error message when you exit co
 
 --Static Popups
 L["A setting you have changed will change an option for this character only. This setting that you have changed will be uneffected by changing user profiles. Changing this setting requires that you reload your User Interface."] = "你所做的改動只會影響到使用這個插件的本角色, 你需要重新加載介面才能使改動生效."
+L["Accepting this will reset your Filter Priority lists for all auras on NamePlates. Are you sure?"] = true
+L["Accepting this will reset your Filter Priority lists for all auras on UnitFrames. Are you sure?"] = true
 L["Are you sure you want to apply this font to all ElvUI elements?"] = "你確定要將此字型應用到所有 ElvUI 元素嗎?"
 L["Are you sure you want to delete all your gray items?"] = "是否確定要刪除所有灰色物品?"
 L["Are you sure you want to disband the group?"] = "確定要解散隊伍?"
